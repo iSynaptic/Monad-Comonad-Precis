@@ -1,4 +1,8 @@
-/** /
+#region Compiler Prologue
+using System; using NUnit.Framework; namespace YetAnotherMonadComonad { [TestFixture] public class Precis {
+#endregion
+
+    /** /
  __   __    _       _                _   _
  \ \ / /__ | |_    / \   _ __   ___ | |_| |__   ___  _ __
   \ V / _ \| __|  / _ \ | '_ \ / _ \| __| '_ \ / _ \| '__|
@@ -582,3 +586,6 @@ composition, proceeding to calculate as before:
 The equation type-matches.
 
 /**/
+#region Compiler Epilogue
+} }
+#endregion
