@@ -10,27 +10,19 @@ namespace YetAnotherMonadComonad
     [TestFixture]
     public class Precis
     {
-        Func<Maybe<int>, Func<int, Maybe<int>>, Maybe<int>> bind =
-            Maybe<int>.Bind<int>;
-
-        Func<int, Maybe<int>> @return =
-            Maybe.Return<int>;
-
-        Maybe<int> noValue = Maybe<int>.NoValue;
-
-        public Func<TRet> Infer<T1, TRet>(Func<TRet> func)
+        public Func<Maybe<T>, Func<T, Maybe<TResult>>, Maybe<TResult>> getBind<T, TResult>()
         {
-            return func;
+            return Maybe<T>.Bind<TResult>;
         }
 
-        public Func<T1, TRet> Infer<T1, TRet>(Func<T1, TRet> func)
+        public Func<T, Maybe<T>> getReturn<T>()
         {
-            return func;
+            return Maybe.Return<T>;
         }
 
-        public Func<T1, T2, TRet> Infer<T1, T2, TRet>(Func<T1, T2, TRet> func)
+        public Maybe<T> noValue<T>()
         {
-            return func;
+            return Maybe<T>.NoValue;
         }
 
         public Func<TRet> Curry<T1, TRet>(Func<T1, TRet> func, T1 arg1)
@@ -209,6 +201,9 @@ A monad of t's bound to return must produce the original monad.
     [Law]
     public void Monadic_Law_1_WithValue()
     {
+        var bind = getBind<int, int>();
+        var @return = getReturn<int>();
+
         var mi = 42.ToMaybe();
 
         Assert.IsTrue(
@@ -221,7 +216,10 @@ A monad of t's bound to return must produce the original monad.
     [Law]
     public void Monadic_Law_1_WithoutValue()
     {
-        var mi = noValue;
+        var bind = getBind<int, int>();
+        var @return = getReturn<int>();
+
+        var mi = noValue<int>();
 
         Assert.IsTrue(
 
@@ -247,7 +245,11 @@ its input.
     [Law]
     public void Monadic_Law_1_Terse_WithValue()
     {
-        var id = Curry(bind.Flip(), @return);
+        var bind = getBind<int, int>();
+        var fbind = bind.Flip();
+        var @return = getReturn<int>();
+
+        var id = Curry(fbind, @return);
         var mi = 42.ToMaybe();
 
         Assert.IsTrue(
@@ -260,8 +262,12 @@ its input.
     [Law]
     public void Monadic_Law_1_Terse_WithoutValue()
     {
-        var id = Curry(bind.Flip(), @return);
-        var mi = noValue;
+        var bind = getBind<int, int>();
+        var fbind = bind.Flip();
+        var @return = getReturn<int>();
+
+        var id = Curry(fbind, @return);
+        var mi = noValue<int>();
 
         Assert.IsTrue(
 
