@@ -25,6 +25,16 @@ namespace YetAnotherMonadComonad
             return Maybe.Return(value);
         }
 
+        public Maybe<T> join<T>(Maybe<Maybe<T>> mmt)
+        {
+            return mmt.Extract();
+        }
+
+        public Func<Maybe<T>, Maybe<TResult>> fmap<T, TResult>(Func<T, TResult> func)
+        {
+            return mt => mt.Select(func);
+        }
+
         public Func<Maybe<T>, Func<T, Maybe<TResult>>, Maybe<TResult>> getBind<T, TResult>()
         {
             return bind<T, TResult>;
@@ -407,6 +417,26 @@ Bind takes mt -- a monad of t's, and some t2mu -- a function that
 takes t's to mu's -- monads of u's, and produces another mu, a single
 monad of u's -- it lifts and flattens one level.  That's just what
 ((fmap t2u) mt) does.
+/**/
+
+    [Law]
+    public void Monadic_Equivalence_1_WithValue()
+    {
+        var mi = 42.ToMaybe();
+
+        Func<int, string> i2s =
+            i => string.Format("{0}!", i);
+
+        Assert.IsTrue(
+
+            (fmap(i2s))(mi) ==
+
+            bind(mi, t => @return(i2s(t)))
+
+        );
+    }
+
+/** /
 
 Equivalence 2:
 
