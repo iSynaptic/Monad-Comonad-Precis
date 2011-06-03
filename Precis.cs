@@ -50,11 +50,6 @@ namespace YetAnotherMonadComonad
             return @return<T>;
         }
 
-        public Maybe<T> noValue<T>()
-        {
-            return Maybe<T>.NoValue;
-        }
-
         public Func<TRet> Curry<T1, TRet>(Func<T1, TRet> func, T1 arg1)
         {
             return () => func(arg1);
@@ -229,25 +224,23 @@ A monad of t's bound to return must produce the original monad.
 /**/
 
     [Law]
-    public void Monadic_Law_1_WithValue()
+    public void Monadic_Law_1()
     {
-        var mi = 42.ToMaybe();
+        // with value
+        Assert_Monadic_Law_1(42.ToMaybe());
 
-        Assert.IsTrue(
-            
-            bind(mi, @return) == mi
-        
-        );
+        // with no value
+        Assert_Monadic_Law_1(Maybe<int>.NoValue);
+
+        // with exception
+        Assert_Monadic_Law_1(new Maybe<int>(new InvalidOperationException()));
     }
 
-    [Law]
-    public void Monadic_Law_1_WithoutValue()
+    private void Assert_Monadic_Law_1<T>(Maybe<T> mt)
     {
-        var mi = noValue<int>();
-
         Assert.IsTrue(
 
-            bind(mi, @return) == mi
+            bind(mt, @return) == mt
 
         );
     }
@@ -267,27 +260,25 @@ its input.
 /**/
 
     [Law]
-    public void Monadic_Law_1_Terse_WithValue()
+    public void Terse_Monadic_Law_1()
     {
-        var id = Curry(getFBind<int, int>(), @return);
-        var mi = 42.ToMaybe();
+        // with value
+        Assert_Terse_Monadic_Law_1(42.ToMaybe());
 
-        Assert.IsTrue(
+        // with no value
+        Assert_Terse_Monadic_Law_1(Maybe<int>.NoValue);
 
-            id(mi) == mi
-
-        );
+        // with exception
+        Assert_Terse_Monadic_Law_1(new Maybe<int>(new InvalidOperationException()));
     }
 
-    [Law]
-    public void Monadic_Law_1_Terse_WithoutValue()
+    private void Assert_Terse_Monadic_Law_1<T>(Maybe<T> mt)
     {
-        var id = Curry(getFBind<int, int>(), @return);
-        var mi = noValue<int>();
+        var id = Curry(getFBind<T, T>(), @return);
 
         Assert.IsTrue(
 
-            id(mi) == mi
+            id(mt) == mt
 
         );
     }
@@ -309,7 +300,7 @@ t's, without doing anything else to it.
 /**/
 
     [Law]
-    public void Monadic_Law_2_WithValue()
+    public void Monadic_Law_2()
     {
         Func<int, Maybe<string>> i2ms =
             i => string.Format("{0}!", i);
@@ -351,10 +342,21 @@ which is the associative law in its most familiar guise.
 /**/
 
     [Law]
-    public void Monadic_Law_3_WithValue()
+    public void Monadic_Law_3()
     {
-        var mi = 42.ToMaybe();
+        // with value
+        Assert_Monadic_Law_3(42.ToMaybe());
 
+        // with no value
+        Assert_Monadic_Law_3(Maybe<int>.NoValue);
+
+        // with exception
+        Assert_Monadic_Law_3(new Maybe<int>(new InvalidOperationException()));
+
+    }
+
+    private void Assert_Monadic_Law_3(Maybe<int> mi)
+    {
         Func<int, Maybe<string>> i2ms =
             i => string.Format("{0}!", i);
 
@@ -420,27 +422,20 @@ monad of u's -- it lifts and flattens one level.  That's just what
 /**/
 
     [Law]
-    public void Monadic_Equivalence_1_WithValue()
+    public void Monadic_Equivalence_1()
     {
-        var mi = 42.ToMaybe();
+        // with value
+        Assert_Monadic_Equivalence_1(42.ToMaybe());
 
-        Func<int, string> i2s =
-            i => string.Format("{0}!", i);
+        // with no value
+        Assert_Monadic_Equivalence_1(Maybe<int>.NoValue);
 
-        Assert.IsTrue(
-
-            (fmap(i2s))(mi) ==
-
-            bind(mi, t => @return(i2s(t)))
-
-        );
+        // with exception
+        Assert_Monadic_Equivalence_1(new Maybe<int>(new InvalidOperationException()));
     }
 
-    [Law]
-    public void Monadic_Equivalence_1_WithoutValue()
+    private void Assert_Monadic_Equivalence_1(Maybe<int> mi)
     {
-        var mi = noValue<int>();
-
         Func<int, string> i2s =
             i => string.Format("{0}!", i);
 
