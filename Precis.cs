@@ -1,5 +1,47 @@
 #region Compiler Prologue
-using System; using NUnit.Framework; using iSynaptic.Commons; namespace YetAnotherMonadComonad { [TestFixture] public class Precis {
+using System;
+using NUnit.Framework;
+using iSynaptic.Commons;
+
+namespace YetAnotherMonadComonad
+{
+    public class LawAttribute : TestAttribute { }
+    
+    [TestFixture]
+    public class Precis
+    {
+        Func<Maybe<int>, Func<int, Maybe<int>>, Maybe<int>> bind =
+            Maybe<int>.Bind<int>;
+
+        Func<int, Maybe<int>> @return =
+            Maybe.Return<int>;
+
+        Maybe<int> noValue = Maybe<int>.NoValue;
+
+        public Func<TRet> Infer<T1, TRet>(Func<TRet> func)
+        {
+            return func;
+        }
+
+        public Func<T1, TRet> Infer<T1, TRet>(Func<T1, TRet> func)
+        {
+            return func;
+        }
+
+        public Func<T1, T2, TRet> Infer<T1, T2, TRet>(Func<T1, T2, TRet> func)
+        {
+            return func;
+        }
+
+        public Func<TRet> Curry<T1, TRet>(Func<T1, TRet> func, T1 arg1)
+        {
+            return () => func(arg1);
+        }
+
+        public Func<T2, TRet> Curry<T1, T2, TRet>(Func<T1, T2, TRet> func, T1 arg1)
+        {
+            return (t2) => func(arg1, t2);
+        }
 #endregion
 
     /** /
@@ -164,14 +206,28 @@ A monad of t's bound to return must produce the original monad.
 
 /**/
 
-    [Test]
-    public void Monadic_Law_1()
+    [Law]
+    public void Monadic_Law_1_WithValue()
     {
-        var mt = 42.ToMaybe();
+        var mi = 42.ToMaybe();
 
-        var result = mt.Bind(Maybe.Return);
+        Assert.IsTrue(
+            
+            bind(mi, @return) == mi
         
-        Assert.AreEqual(mt, result);
+        );
+    }
+
+    [Law]
+    public void Monadic_Law_1_WithoutValue()
+    {
+        var mi = noValue;
+
+        Assert.IsTrue(
+
+            bind(mi, @return) == mi
+
+        );
     }
 
 /** /
@@ -184,7 +240,39 @@ The function (flip bind) -- a copy of bind that just takes its
 arguments in opposite order, partially applied to the function return,
 produces id, the unique function of type t -> t that simply produces
 its input.
+ 
+  
+/**/
 
+    [Law]
+    public void Monadic_Law_1_Terse_WithValue()
+    {
+        var id = Curry(bind.Flip(), @return);
+        var mi = 42.ToMaybe();
+
+        Assert.IsTrue(
+
+            id(mi) == mi
+
+        );
+    }
+
+    [Law]
+    public void Monadic_Law_1_Terse_WithoutValue()
+    {
+        var id = Curry(bind.Flip(), @return);
+        var mi = noValue;
+
+        Assert.IsTrue(
+
+            id(mi) == mi
+
+        );
+    }
+
+/** /
+  
+  
 Law 2:
 
     (return t) `bind` t2mu = t2mu t
@@ -381,11 +469,11 @@ the same results.
                 In general, it is good programming practice to
                 write unit tests for these laws.
                 ************************************************
-   ____                                      _
-  / ___|___  _ __ ___   ___  _ __   __ _  __| | ___
- | |   / _ \| '_ ` _ \ / _ \| '_ \ / _` |/ _` |/ __|
- | |__| (_) | | | | | | (_) | | | | (_| | (_| |\__ \
-  \____\___/|_| |_| |_|\___/|_| |_|\__,_|\__,_||___/
+    ____                                      _
+    / ___|___  _ __ ___   ___  _ __   __ _  __| | ___
+    | |   / _ \| '_ ` _ \ / _ \| '_ \ / _` |/ _` |/ __|
+    | |__| (_) | | | | | | (_) | | | | (_| | (_| |\__ \
+    \____\___/|_| |_| |_|\___/|_| |_|\__,_|\__,_||___/
 
 
 ================================================================
@@ -394,27 +482,27 @@ D e f i n i t i o n
 
     Type constructor W t
 
-                     conventionally written W to suggest an 'upside-
-                     down M,' that is, a flip-side of a monad
+                        conventionally written W to suggest an 'upside-
+                        down M,' that is, a flip-side of a monad
                          
     extract :: W t -> t
 
-                     extract is the flip-side of return.
+                        extract is the flip-side of return.
 
     extend :: (W t -> u) -> W t -> W u
 
-                     extend is the flip-side of bind. Flip the M
-                     upside-down into a W, flip the arrows, and flip
-                     the order of arguments to extend (bind takes the
-                     monad of t's, mt, first, then the t2mu lifter
-                     function; extend takes the extractor function,
-                     wt2u, first, then the target comonad of t's, wt).
+                        extend is the flip-side of bind. Flip the M
+                        upside-down into a W, flip the arrows, and flip
+                        the order of arguments to extend (bind takes the
+                        monad of t's, mt, first, then the t2mu lifter
+                        function; extend takes the extractor function,
+                        wt2u, first, then the target comonad of t's, wt).
 
-                     Extend, partially applied to some wt2u, is a
-                     function from some wt to a wu, that is, a wt2wu
-                     of type (W t -> W u).  To understand most of the
-                     expressions below, keep this aspect of extend in
-                     mind.
+                        Extend, partially applied to some wt2u, is a
+                        function from some wt to a wu, that is, a wt2wu
+                        of type (W t -> W u).  To understand most of the
+                        expressions below, keep this aspect of extend in
+                        mind.
                      
 ================================================================
 L a w s
