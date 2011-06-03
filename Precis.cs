@@ -10,14 +10,34 @@ namespace YetAnotherMonadComonad
     [TestFixture]
     public class Precis
     {
+        public Maybe<TResult> bind<T, TResult>(Maybe<T> self, Func<T, Maybe<TResult>> func)
+        {
+            return Maybe<T>.Bind<TResult>(self, func);
+        }
+
+        public Maybe<TResult> fbind<T, TResult>(Func<T, Maybe<TResult>> func, Maybe<T> self)
+        {
+            return bind(self, func);
+        }
+
+        public Maybe<T> @return<T>(T value)
+        {
+            return Maybe.Return(value);
+        }
+
         public Func<Maybe<T>, Func<T, Maybe<TResult>>, Maybe<TResult>> getBind<T, TResult>()
         {
-            return Maybe<T>.Bind<TResult>;
+            return bind<T, TResult>;
+        }
+
+        public Func<Func<T, Maybe<TResult>>, Maybe<T>, Maybe<TResult>> getFBind<T, TResult>()
+        {
+            return fbind<T, TResult>;
         }
 
         public Func<T, Maybe<T>> getReturn<T>()
         {
-            return Maybe.Return<T>;
+            return @return<T>;
         }
 
         public Maybe<T> noValue<T>()
@@ -201,9 +221,6 @@ A monad of t's bound to return must produce the original monad.
     [Law]
     public void Monadic_Law_1_WithValue()
     {
-        var bind = getBind<int, int>();
-        var @return = getReturn<int>();
-
         var mi = 42.ToMaybe();
 
         Assert.IsTrue(
@@ -216,9 +233,6 @@ A monad of t's bound to return must produce the original monad.
     [Law]
     public void Monadic_Law_1_WithoutValue()
     {
-        var bind = getBind<int, int>();
-        var @return = getReturn<int>();
-
         var mi = noValue<int>();
 
         Assert.IsTrue(
@@ -245,11 +259,7 @@ its input.
     [Law]
     public void Monadic_Law_1_Terse_WithValue()
     {
-        var bind = getBind<int, int>();
-        var fbind = bind.Flip();
-        var @return = getReturn<int>();
-
-        var id = Curry(fbind, @return);
+        var id = Curry(getFBind<int, int>(), @return);
         var mi = 42.ToMaybe();
 
         Assert.IsTrue(
@@ -262,11 +272,7 @@ its input.
     [Law]
     public void Monadic_Law_1_Terse_WithoutValue()
     {
-        var bind = getBind<int, int>();
-        var fbind = bind.Flip();
-        var @return = getReturn<int>();
-
-        var id = Curry(fbind, @return);
+        var id = Curry(getFBind<int, int>(), @return);
         var mi = noValue<int>();
 
         Assert.IsTrue(
@@ -295,9 +301,6 @@ t's, without doing anything else to it.
     [Law]
     public void Monadic_Law_2_WithValue()
     {
-        var bind = getBind<int, string>();
-        var @return = getReturn<int>();
-
         Func<int, Maybe<string>> i2ms =
             i => string.Format("{0}!", i);
 
@@ -335,6 +338,29 @@ bit, the law really just looks like
     (a op b) op c = a op (b op c)
 
 which is the associative law in its most familiar guise.
+/**/
+
+    [Law]
+    public void Monadic_Law_3_WithValue()
+    {
+        var mi = 42.ToMaybe();
+
+        Func<int, Maybe<string>> i2ms =
+            i => string.Format("{0}!", i);
+
+        Func<string, Maybe<int>> s2mi =
+            s => int.Parse(s.Substring(0, 2));
+
+        Assert.IsTrue(
+
+            bind(bind(mi, i2ms), s2mi) ==
+
+            bind(mi, t => bind(i2ms(t), s2mi))
+
+        );
+    }
+
+/** /
 
 That's it.  Any pair of functions that satisfies the above definitions
 and laws constitutes a monad.  They don't have to be named return and
