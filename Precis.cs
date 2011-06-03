@@ -436,6 +436,23 @@ monad of u's -- it lifts and flattens one level.  That's just what
         );
     }
 
+    [Law]
+    public void Monadic_Equivalence_1_WithoutValue()
+    {
+        var mi = noValue<int>();
+
+        Func<int, string> i2s =
+            i => string.Format("{0}!", i);
+
+        Assert.IsTrue(
+
+            (fmap(i2s))(mi) ==
+
+            bind(mi, t => @return(i2s(t)))
+
+        );
+    }
+
 /** /
 
 Equivalence 2:
