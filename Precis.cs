@@ -27,11 +27,7 @@ Programming,"
 
 http://en.wikipedia.org/wiki/Monad_(functional_programming)
 
-
-Brian Beckman
-
-Version of 2 June 2011
-
+Copyright (c) 2011 Brian Beckman
 
 This work is licensed under the Creative Commons
 "Attribution-ShareAlike, CC BY-SA" License. To view a copy of this
@@ -39,6 +35,7 @@ license, visit http://creativecommons.org/licenses/by-sa/3.0/; or,
 send a letter to Creative Commons, 444 Castro Street, Suite 900,
 Mountain View, California 94140, USA.
 
+Version of 2 June 2011
 
   _   _       _         _   _
  | \ | | ___ | |_  __ _| |_(_) ___  _ __
