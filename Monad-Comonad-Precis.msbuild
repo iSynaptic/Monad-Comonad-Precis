@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Project ToolsVersion="4.0" DefaultTargets="BuildAndTest" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <NUnitPath>$(MSBuildProjectDirectory)\nunit</NUnitPath>
+    <NUnitPath>$(MSBuildProjectDirectory)\tools\nunit</NUnitPath>
     <NUnitFrameworkDll>$(NUnitPath)\framework\nunit.framework.dll</NUnitFrameworkDll>
-    <BuildPath>..\build</BuildPath>
+    <iSynapticCommonsDll>$(MSBuildProjectDirectory)\lib\iSynaptic.Commons.dll</iSynapticCommonsDll>
+    <BuildPath>$(MSBuildProjectDirectory)\build</BuildPath>
     <OutputDll>$(BuildPath)\precis.dll</OutputDll>
     
   </PropertyGroup>
   
   <ItemGroup>
-    <SourceFile Include="..\*.cs" />
+    <SourceFile Include="*.cs" />
   </ItemGroup>
   
   <Target Name="BuildAndTest">
     <MakeDir Condition="!Exists('$(BuildPath)')" Directories="$(BuildPath)" />
     
-    <Csc Sources="@(SourceFile)" OutputAssembly="$(OutputDll)" References="$(NUnitFrameworkDll)" TargetType="library" />
-    <Copy SourceFiles="$(NUnitFrameworkDll)"
+    <Csc Sources="@(SourceFile)" OutputAssembly="$(OutputDll)" References="$(NUnitFrameworkDll);$(iSynapticCommonsDll)" TargetType="library" />
+    <Copy SourceFiles="$(NUnitFrameworkDll);$(iSynapticCommonsDll)"
           DestinationFolder="$(BuildPath)" />
 
     <Exec WorkingDirectory="$(BuildPath)"

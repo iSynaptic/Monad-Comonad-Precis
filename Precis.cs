@@ -1,5 +1,5 @@
 #region Compiler Prologue
-using System; using NUnit.Framework; namespace YetAnotherMonadComonad { [TestFixture] public class Precis {
+using System; using NUnit.Framework; using iSynaptic.Commons; namespace YetAnotherMonadComonad { [TestFixture] public class Precis {
 #endregion
 
     /** /
@@ -161,6 +161,21 @@ Law 1:
     mt `bind` return = mt
 
 A monad of t's bound to return must produce the original monad.
+
+/**/
+
+    [Test]
+    public void Monadic_Law_1()
+    {
+        var mt = 42.ToMaybe();
+
+        var result = mt.Bind(Maybe.Return);
+        
+        Assert.AreEqual(mt, result);
+    }
+
+/** /
+   
 Another, more terse way of writing this is
 
     (flip bind) return = id
