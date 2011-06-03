@@ -290,6 +290,25 @@ t2mu applied to t in the first place.
 These two laws express the notion that return must be a kind of
 neutral lifting function that puts a value t into mt -- a monad of
 t's, without doing anything else to it.
+/**/
+
+    [Law]
+    public void Monadic_Law_2_WithValue()
+    {
+        var bind = getBind<int, string>();
+        var @return = getReturn<int>();
+
+        Func<int, Maybe<string>> i2ms =
+            i => string.Format("{0}!", i);
+
+        Assert.IsTrue(
+
+            bind(@return(42), i2ms) == i2ms(42)
+
+        );
+    }
+
+/** /
 
 Law 3:
 
