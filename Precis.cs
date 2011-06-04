@@ -522,8 +522,8 @@ one level of monad, producing an mu -- a monad of u's.
 
 Both sides of the equivalence have the same type, and the equivalence
 requires that they always have the same value.
- * 
- * /**/
+   
+   /**/
 
     [Law]
     public void Monadic_Equivalence_3()
@@ -568,6 +568,24 @@ Law 4:
 
 Id works on values of any type.  Lifting id to operate on monads must
 preserve its semantics.
+/**/
+
+    [Law]
+    public void Monadic_Law_4()
+    {
+        Func<int, int> id = x => x;
+        var mid = fmap(id);
+
+        var mi = 42.ToMaybe();
+
+        Assert.IsTrue(
+
+            mid(42.ToMaybe()) == id(42).ToMaybe()
+
+        );
+    }
+
+/** /
     
 Law 5:
 
