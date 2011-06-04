@@ -12,7 +12,7 @@ namespace YetAnotherMonadComonad
     {
         public Maybe<TResult> bind<T, TResult>(Maybe<T> self, Func<T, Maybe<TResult>> func)
         {
-            return Maybe<T>.Bind<TResult>(self, func);
+            return self.Bind(func);
         }
 
         public Maybe<TResult> fbind<T, TResult>(Func<T, Maybe<TResult>> func, Maybe<T> self)
@@ -465,7 +465,38 @@ other type; in this case, monads of value of type mt -- monads of
 monads of t's.  The types of the two expressions 'join mmt' and 'mmt
 `bind` id' evidently match, and Equivalence 2 requires that the
 results match in any application of these functions.
+/**/
 
+    [Law]
+    public void Monadic_Equivalence_2()
+    {
+        // with value
+        Assert_Monadic_Equivalence_2(42.ToMaybe());
+
+        // with no value
+        Assert_Monadic_Equivalence_2(Maybe<int>.NoValue);
+
+        // with exception
+        Assert_Monadic_Equivalence_2(new Maybe<int>(new InvalidOperationException()));
+    }
+
+    private void Assert_Monadic_Equivalence_2<T>(Maybe<T> mt)
+    {
+        Func<Maybe<T>, Maybe<T>> id = 
+            x => x;
+
+        Maybe<Maybe<T>> mmt = mt.ToMaybe();
+
+        Assert.IsTrue(
+
+            join(mmt) ==
+
+            bind<Maybe<T>, T>(mmt, id)
+
+        );
+    }
+
+/** /
 Equivalence 3:
 
     mt `bind` t2mu === join ((fmap t2mu) mt)
