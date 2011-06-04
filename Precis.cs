@@ -27,12 +27,27 @@ namespace YetAnotherMonadComonad
 
         public Maybe<T> join<T>(Maybe<Maybe<T>> mmt)
         {
-            return mmt.Extract();
+            if (mmt.Exception != null)
+                return new Maybe<T>(mmt.Exception);
+
+            if (mmt.HasValue != true)
+                return Maybe<T>.NoValue;
+
+            return mmt.Value;
         }
 
         public Func<Maybe<T>, Maybe<TResult>> fmap<T, TResult>(Func<T, TResult> func)
         {
-            return mt => mt.Select(func);
+            return mt =>
+            {
+                if (mt.Exception != null)
+                    return new Maybe<TResult>(mt.Exception);
+
+                if (mt.HasValue != true)
+                    return Maybe<TResult>.NoValue;
+
+                return func(mt.Value).ToMaybe();                    
+            };
         }
 
         public Func<Maybe<T>, Func<T, Maybe<TResult>>, Maybe<TResult>> getBind<T, TResult>()
@@ -482,21 +497,19 @@ results match in any application of these functions.
 
     private void Assert_Monadic_Equivalence_2<T>(Maybe<T> mt)
     {
-        Func<Maybe<T>, Maybe<T>> id = 
-            x => x;
-
         Maybe<Maybe<T>> mmt = mt.ToMaybe();
 
         Assert.IsTrue(
 
             join(mmt) ==
 
-            bind<Maybe<T>, T>(mmt, id)
+            bind(mmt, x => x)
 
         );
     }
 
 /** /
+ 
 Equivalence 3:
 
     mt `bind` t2mu === join ((fmap t2mu) mt)
@@ -509,6 +522,38 @@ one level of monad, producing an mu -- a monad of u's.
 
 Both sides of the equivalence have the same type, and the equivalence
 requires that they always have the same value.
+ * 
+ * /**/
+
+    [Law]
+    public void Monadic_Equivalence_3()
+    {
+        Func<int, Maybe<string>> i2ms =
+            x => x.ToString().ToMaybe();
+
+        // with value
+        Assert_Monadic_Equivalence_3(42.ToMaybe(), i2ms);
+
+        // with no value
+        Assert_Monadic_Equivalence_3(Maybe<int>.NoValue, i2ms);
+
+        // with exception
+        Assert_Monadic_Equivalence_3(new Maybe<int>(new InvalidOperationException()), i2ms);
+    }
+
+    private void Assert_Monadic_Equivalence_3<T, U>(Maybe<T> mt, Func<T, Maybe<U>> t2mu)
+    {
+        Assert.IsTrue(
+
+            bind(mt, t2mu) ==
+
+            join(fmap(t2mu)(mt))
+
+        );
+    }
+
+/** /
+
 
 The three equivalences establish the equivalence of the bind-return
 formulation of monads and the join-fmap-return formulation of monads.

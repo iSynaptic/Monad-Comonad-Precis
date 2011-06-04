@@ -6,6 +6,7 @@
     <iSynapticCommonsDll>$(MSBuildProjectDirectory)\lib\iSynaptic.Commons.dll</iSynapticCommonsDll>
     <BuildPath>$(MSBuildProjectDirectory)\build</BuildPath>
     <OutputDll>$(BuildPath)\precis.dll</OutputDll>
+    <OutputPdb>$(BuildPath)\precis.pdb</OutputPdb>
     
   </PropertyGroup>
   
@@ -16,7 +17,13 @@
   <Target Name="BuildAndTest">
     <MakeDir Condition="!Exists('$(BuildPath)')" Directories="$(BuildPath)" />
     
-    <Csc Sources="@(SourceFile)" OutputAssembly="$(OutputDll)" References="$(NUnitFrameworkDll);$(iSynapticCommonsDll)" TargetType="library" />
+    <Csc Sources="@(SourceFile)"
+         OutputAssembly="$(OutputDll)"
+         References="$(NUnitFrameworkDll);$(iSynapticCommonsDll)"
+         TargetType="library"
+         PdbFile="$(OutputPdb)"
+         DebugType="full" />
+    
     <Copy SourceFiles="$(NUnitFrameworkDll);$(iSynapticCommonsDll)"
           DestinationFolder="$(BuildPath)" />
 
