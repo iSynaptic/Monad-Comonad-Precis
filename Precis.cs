@@ -97,10 +97,10 @@ namespace YetAnotherMonadComonad
  | |\/| |/ _ \| '_ \ / _` |/ _` |  / _` | '_ \ / _` |
  | |  | | (_) | | | | (_| | (_| | | (_| | | | | (_| |
  |_|__|_|\___/|_| |_|\__,_|\__,_|  \__,_|_| |_|\__,_|
-  / ___|___  _ __ ___   ___  _ __   __ _  __| |
+ /  ___|___  _ __ ___   ___  _ __   __ _  __| |
  | |   / _ \| '_ ` _ \ / _ \| '_ \ / _` |/ _` |
  | |__| (_) | | | | | | (_) | | | | (_| | (_| |
-  \____\___/|_| |_| |_|\___/|_| |_|\__,_|\__,_|
+ \_____\___/|_| |_| |_|\___/|_| |_|\__,_|\__,_|
  |  _ \ _ __  ___   ___(_) ___
  | |_) | '__|/ _ \ / __| |/ __|
  |  __/| |  |  __/| (__| |\__ \
@@ -744,6 +744,7 @@ have id semantics.
     }
 
 /** /
+
 Law 9:
     
     join . (fmap (fmap t2u)) = (fmap t2u) . join
@@ -754,16 +755,38 @@ some mmt, producing mmu, then apply join, producing mu.
 On the right-hand side, apply join to some mmt producing an mt, then
 apply mt2mu producing an mu.  The law requires both sides to produce
 the same results.
+  
+  
+/**/
 
+    [Law]
+    public void Monadic_Law_9()
+    {
+        Func<int, string> i2s =
+            i => i.ToString();
+
+        var left = Compose(getJoin<string>(), fmap(fmap(i2s)));
+        var right = Compose(fmap(i2s), getJoin<int>());
+
+        Assert.IsTrue(
+
+            left(42.ToMaybe()) == right(42.ToMaybe())
+
+        );
+    }
+
+/** /
+  
+  
                 ************************************************
                 In general, it is good programming practice to
                 write unit tests for these laws.
                 ************************************************
-    ____                                      _
-    / ___|___  _ __ ___   ___  _ __   __ _  __| | ___
+     ____                                       _
+    /  __| ___  _ __ ___   ___  _ __   __ _  __| | ___
     | |   / _ \| '_ ` _ \ / _ \| '_ \ / _` |/ _` |/ __|
     | |__| (_) | | | | | | (_) | | | | (_| | (_| |\__ \
-    \____\___/|_| |_| |_|\___/|_| |_|\__,_|\__,_||___/
+    \____\____/|_| |_| |_|\___/|_| |_|\__,_|\__,_||___/
 
 
 ================================================================
