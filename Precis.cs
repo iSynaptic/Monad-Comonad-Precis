@@ -60,6 +60,11 @@ namespace YetAnotherMonadComonad
             return fbind<T, TResult>;
         }
 
+        public Func<Maybe<Maybe<T>>, Maybe<T>> getJoin<T>()
+        {
+            return join<T>;
+        }
+
         public Func<T, Maybe<T>> getReturn<T>()
         {
             return @return<T>;
@@ -684,6 +689,25 @@ mmt, the result of applying mmmt2mmt to some mmmt, produce mt, so
 that (join . join), given an mmmt will produce an mt.  The law
 requires that both sides produce the same values when applied to any
 mmmt.
+
+/**/
+
+    [Law]
+    public void Monadic_Law_7()
+    {
+        var mmmi = 42.ToMaybe().ToMaybe().ToMaybe();
+
+        Assert.IsTrue(
+
+            Compose(getJoin<int>(), fmap(getJoin<int>()))(mmmi) ==
+
+            Compose(getJoin<int>(), getJoin<Maybe<int>>())(mmmi)
+
+        );
+
+    }
+
+/** /
 
 Law 8:
 
