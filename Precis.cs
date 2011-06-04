@@ -695,16 +695,19 @@ mmmt.
     [Law]
     public void Monadic_Law_7()
     {
+        var mmt2mt = getJoin<int>();
+        var mmmt2mmt = fmap(mmt2mt);
+
+        var left = Compose(getJoin<int>(), mmmt2mmt);
+        var right = Compose(getJoin<int>(), getJoin<Maybe<int>>());
+
         var mmmi = 42.ToMaybe().ToMaybe().ToMaybe();
 
         Assert.IsTrue(
 
-            Compose(getJoin<int>(), fmap(getJoin<int>()))(mmmi) ==
-
-            Compose(getJoin<int>(), getJoin<Maybe<int>>())(mmmi)
+            left(mmmi) == right(mmmi)
 
         );
-
     }
 
 /** /
@@ -722,7 +725,25 @@ Now, to the right-hand side.  Applying return to mt -- a monad of t's,
 produces mmt -- a monad of monads of t's.  Applying join to that mmt
 produces mt, a monad of t's.  The law requires that both expressions
 have id semantics.
+/**/
 
+    [Law]
+    public void Monadic_Law_8()
+    {
+        var t2mt = getReturn<int>();
+        var mt2mmt = fmap(t2mt);
+
+        var left = Compose(getJoin<int>(), mt2mmt);
+        var right = Compose(getJoin<int>(), getReturn<Maybe<int>>());
+
+        Assert.IsTrue(
+
+            left(42.ToMaybe()) == right(42.ToMaybe())
+
+        );
+    }
+
+/** /
 Law 9:
     
     join . (fmap (fmap t2u)) = (fmap t2u) . join
