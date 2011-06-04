@@ -653,6 +653,25 @@ function from monads of t's to monads of u's.  The law requires that
 the left-hand side and the right-hand side produce the same values in
 any application.
 
+/**/
+
+    [Law]
+    public void Monadic_Law_6()
+    {
+        Func<int, string> i2s =
+            i => i.ToString();
+
+        Assert.IsTrue(
+
+            Compose(@return<string>, i2s)(42) ==
+
+            Compose(fmap(i2s), getReturn<int>())(42)
+        );
+
+    }
+
+/** /
+
 Law 7:
 
     join . (fmap join) = join . join
