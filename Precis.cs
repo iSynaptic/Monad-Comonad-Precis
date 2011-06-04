@@ -74,6 +74,11 @@ namespace YetAnotherMonadComonad
         {
             return (t2) => func(arg1, t2);
         }
+
+        public Func<T1, TRet> Compose<T1, T2, TRet>(Func<T2, TRet> outer, Func<T1, T2> inner)
+        {
+            return t1 => outer(inner(t1));
+        }
 #endregion
 
     /** /
@@ -599,6 +604,40 @@ To the right-hand side: let (fmap t2u) be mt2mu and (fmap u2w) be
 mu2mw, and the composition of these two functions be mt2mw, of type M
 t -> M w.  The law requires that the results be the same in any
 application of these functions.
+/**/
+
+    [Law]
+    public void Monadic_Law_5()
+    {
+        Func<int, string> i2s =
+            i => i.ToString();
+
+        Func<string, DateTime> s2d =
+            s => DateTime.Parse(s + "/01/2011");
+
+        // with value
+        Assert_Monadic_Law_5(7.ToMaybe(), i2s, s2d);
+
+        // with no value
+        Assert_Monadic_Law_5(Maybe<int>.NoValue, i2s, s2d);
+
+        // with exception
+        Assert_Monadic_Law_5(new Maybe<int>(new InvalidOperationException()), i2s, s2d);
+
+    }
+
+    private void Assert_Monadic_Law_5<T, U, W>(Maybe<T> mt, Func<T, U> t2u, Func<U, W> u2w)
+    {
+        Assert.IsTrue(
+
+            fmap(Compose(u2w, t2u)) (mt) ==
+            
+            Compose(fmap(u2w), fmap(t2u)) (mt)
+
+        );
+    }
+
+/** /
     
 Law 6:
 
