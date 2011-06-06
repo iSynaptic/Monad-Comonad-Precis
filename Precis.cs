@@ -1,5 +1,6 @@
 #region Compiler Prologue
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using iSynaptic.Commons;
 
@@ -36,6 +37,16 @@ namespace YetAnotherMonadComonad
             return mmt.Value;
         }
 
+        public Maybe<TResult> extend<T, TResult>(Func<Maybe<T>, TResult> func, Maybe<T> self)
+        {
+            return self.Extend(func);
+        }
+
+        public T extract<T>(Maybe<T> value)
+        {
+            return value.Extract();
+        }
+
         public Func<Maybe<T>, Maybe<TResult>> fmap<T, TResult>(Func<T, TResult> func)
         {
             return mt =>
@@ -68,6 +79,11 @@ namespace YetAnotherMonadComonad
         public Func<T, Maybe<T>> getReturn<T>()
         {
             return @return<T>;
+        }
+
+        public Func<Func<Maybe<T>, TResult>, Maybe<T>, Maybe<TResult>> getExtend<T, TResult>()
+        {
+            return extend<T, TResult>;
         }
 
         public Func<TRet> Curry<T1, TRet>(Func<T1, TRet> func, T1 arg1)
@@ -832,6 +848,36 @@ takes a wt2u and produces a wu.  extract is a wt2u -- a legitimate
 argument for the function parameter of extend -- extract is a wt2u in
 which t = u, that is, extract is a wt2t.  The law requires that extend
 applied to extract have id semantics.
+  
+   
+/**/
+
+    [Law]
+    [Ignore]
+    public void Comonadic_Law_1()
+    {
+        // with value
+        Assert_Comonadic_Law_1(42.ToMaybe());
+
+        // with no value
+        Assert_Comonadic_Law_1(Maybe<int>.NoValue);
+
+        // with exception
+        Assert_Comonadic_Law_1(new Maybe<int>(new InvalidOperationException()));
+    }
+
+    private void Assert_Comonadic_Law_1<T>(Maybe<T> wt)
+    {
+        var id = Curry(getExtend<T, T>(), extract);
+
+        Assert.IsTrue(
+
+            id(wt) == wt
+
+        );
+    }
+
+/** /   
 
 Law 2':
 
@@ -850,7 +896,49 @@ other words, that
 As usual, we may remove the argument wt from the extreme right-hand
 sides of both sides of the equation, producing the original expression
 of law 2'.
+   
+   
+/**/
 
+    [Law]
+    [Ignore]
+    public void Comonadic_Law_2()
+    {
+        Func<Maybe<int>, string> wi2s = wi => wi.HasValue
+            ? wi.Value.ToString()
+            : "";
+
+        // with value
+        Assert_Comonadic_Law_2(42.ToMaybe(), wi2s);
+
+        // with no value
+        Assert_Comonadic_Law_2(Maybe<int>.NoValue, wi2s);
+
+        // with exception
+        Assert_Comonadic_Law_2(new Maybe<int>(new InvalidOperationException()), wi2s);
+    }
+
+    private void Assert_Comonadic_Law_2<T, U>(Maybe<T> wt, Func<Maybe<T>, U> wt2u)
+    {
+        var wt2wu = Curry(getExtend<T, U>(), wt2u);
+
+        var left = Compose(extract, wt2wu);
+        var right = wt2u;
+
+
+        Assert.IsTrue(
+
+            EqualityComparer<U>
+                .Default
+                .Equals(left(wt), right(wt))
+
+        );
+    }
+
+/** /   
+   
+   
+   
 Law 3':
 
     (extend wu2v) . (extend wt2u) =
