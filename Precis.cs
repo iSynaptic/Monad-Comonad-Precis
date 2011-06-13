@@ -210,7 +210,7 @@ Other Haskellisms as appropriate:
                          words, (f . g) x = (f (g x)); composition
                          binds more weakly than application, meaning
                          that f x . g is (f x) . g and f . g x is 
-                         f . (g x).
+                         f . (g x)
 
     f $ x            f applied to the entire right-hand side x; this
                          notation occasionally reduces the number of
@@ -827,12 +827,47 @@ D e f i n i t i o n
                         function; extend takes the extractor function,
                         wt2u, first, then the target comonad of t's, wt).
 
-                        Extend, partially applied to some wt2u, is a
-                        function from some wt to a wu, that is, a wt2wu
-                        of type (W t -> W u).  To understand most of the
-                        expressions below, keep this aspect of extend in
-                        mind.
-                     
+                        We also swapped the names t and u so that the
+                        sources of arrows are always t's and the ends
+                        of arrows are always u's.  It's harmless to
+                        change the names of "dummy parameters;" (see
+                        alpha-conversion at
+        http://en.wikipedia.org/wiki/Lambda_calculus#.CE.B1-conversion).
+
+                        The reason to flip the order of arguments when
+                        dualizing bind to derive extend is practical
+                        rather than theoretical.  Extend, partially
+                        applied to some wt2u, is a function from some
+                        wt to a wu, that is, a wt2wu of type (W t -> W
+                        u).  To understand most of the expressions
+                        below, keep this aspect of extend in mind.
+
+Remarks and intuitions:
+
+Monads are like collection boxes: you put things in and you can't take
+them out: t->Mt.  You can transform the things in a collection box, as
+long as you put them in a mini-box: t->Mu is basically a composition
+of a transform t->u and a return u->Mu.  Bind will flatten one level
+of box and leave you with a new collection box containing transformed
+items: Mu.  
+
+This action is exactly like the "boxing" operation over value types in
+.NET: you can put a value in a box, wrapping it in a heap-allocated
+object, and if you do it multiple times, you still get just one layer
+of boxing.
+
+Comonads are like PEZ candy dispensers: you can take things out:
+Wt->t.  You can take the candies in one dispenser and combine them
+into a new kind of candy: Wt->u, and comonad's extend will make you a
+new dispenser with the new kind of candy in it.  There isn't such a
+direct intuition of "collection" as there is with monad and bind,
+since you must take the entire 'contents' of the original dispenser to
+make just one value of the new kind of thing.
+
+Just as the function argument of monad's bind is a composition of a
+transform and a lift, so the function argument of comonad's extend is
+a composition of an extract and a transform.
+
 ================================================================
 L a w s
 ================================================================
@@ -959,7 +994,11 @@ A l t e r n a t i v e   F o r m u l a t i o n:
 
 Make duals by flipping arrows and inverting M's to W's.
 
-fmap is self-dual.
+fmap for comonads looks just like fmap for monads; its type is
+
+    fmap :: (t -> u) -> (W t -> W u)
+
+[not the dual, which would be (W u -> W t) -> (u -> t)].
 
 We already have the dual of return: extract.
 
