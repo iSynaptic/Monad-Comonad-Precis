@@ -3,7 +3,6 @@
   <PropertyGroup>
     <NUnitPath>$(MSBuildProjectDirectory)\tools\nunit</NUnitPath>
     <NUnitFrameworkDll>$(NUnitPath)\framework\nunit.framework.dll</NUnitFrameworkDll>
-    <iSynapticCommonsDll>$(MSBuildProjectDirectory)\lib\iSynaptic.Commons.dll</iSynapticCommonsDll>
     <BuildPath>$(MSBuildProjectDirectory)\build</BuildPath>
     <OutputDll>$(BuildPath)\precis.dll</OutputDll>
     <OutputPdb>$(BuildPath)\precis.pdb</OutputPdb>
@@ -19,12 +18,12 @@
     
     <Csc Sources="@(SourceFile)"
          OutputAssembly="$(OutputDll)"
-         References="$(NUnitFrameworkDll);$(iSynapticCommonsDll)"
+         References="$(NUnitFrameworkDll)"
          TargetType="library"
          PdbFile="$(OutputPdb)"
          DebugType="full" />
     
-    <Copy SourceFiles="$(NUnitFrameworkDll);$(iSynapticCommonsDll)"
+    <Copy SourceFiles="$(NUnitFrameworkDll)"
           DestinationFolder="$(BuildPath)" />
 
     <Exec WorkingDirectory="$(BuildPath)"

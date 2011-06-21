@@ -7,6 +7,14 @@ using iSynaptic.Commons;
 namespace YetAnotherMonadComonad
 {
     public class LawAttribute : TestAttribute { }
+
+    public static class MaybeExtensions
+    {
+        public static Maybe<TResult> Extend<T, TResult>(this Maybe<T> self, Func<Maybe<T>, TResult> selector)
+        {
+            return self.Express(x => selector(x).ToMaybe());
+        }
+    }
     
     [TestFixture]
     public class Precis
