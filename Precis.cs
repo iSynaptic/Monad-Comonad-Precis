@@ -12,7 +12,8 @@ namespace YetAnotherMonadComonad
     {
         public static Maybe<TResult> Extend<T, TResult>(this Maybe<T> self, Func<Maybe<T>, TResult> selector)
         {
-            return self.Express(x => selector(x).ToMaybe());
+            return self.Select(x => selector(x.ToMaybe())); // Comonadic law two fails
+            // return self.Express(x => selector(x).ToMaybe()); // Comonadic law one fails
         }
     }
     
