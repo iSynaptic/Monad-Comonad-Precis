@@ -140,7 +140,7 @@ Programming,"
 
 http://en.wikipedia.org/wiki/Monad_(functional_programming)
 
-Copyright (c) 2011 Brian Beckman
+Copyright (c) 2011 Brian Beckman, Jordan Terrell
 
 This work is licensed under the Creative Commons
 "Attribution-ShareAlike, CC BY-SA" License. To view a copy of this
